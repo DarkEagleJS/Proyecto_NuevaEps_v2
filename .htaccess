@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteBase /tuProyecto/
+RewriteRule ^registro$ index.php?action=register [L]
