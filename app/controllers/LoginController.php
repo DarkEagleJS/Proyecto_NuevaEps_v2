@@ -21,8 +21,7 @@ class LoginController extends Controller {
 
     // Mostrar el formulario de registro
     public function showLoginForm() {
-        AuthMiddleware::guest();
-        $this->view->render('views/login');
+        $this->view->render('login');
     }
 
 }

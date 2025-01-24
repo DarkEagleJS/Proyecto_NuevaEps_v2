@@ -1,3 +1,4 @@
-RewriteEngine On
-RewriteBase /tuProyecto/
-RewriteRule ^registro$ index.php?action=register [L]
+# Desactivar las reglas de reescritura temporalmente
+# RewriteEngine On
+# RewriteBase /tuProyecto/
+# RewriteRule ^(.*)$ index.php [QSA,L]

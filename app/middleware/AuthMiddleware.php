@@ -23,7 +23,7 @@ class AuthMiddleware {
 
         // Si el usuario está autenticado, redirigir al dashboard
         if (isset($_SESSION['user_id'])) {
-            header("Location: /dashboard");
+            header("Location: ../app/views/login.php");
             exit();
         }
     }

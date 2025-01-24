@@ -1,32 +1,29 @@
 <?php
-require_once '../core/route.php';
-require_once '../core/routes.php';
 
-// Iniciar una sesión si aún no está iniciada
+// Si la URI es exactamente '/Proyecto/public/index.php' o '/Proyecto', redirige a '/Proyecto/login'
+if ($_SERVER['REQUEST_URI'] == '/Proyecto/public/index.php' || $_SERVER['REQUEST_URI'] == '/Proyecto') {
+    header('Location: /Proyecto/login'); // Redirige a la ruta de login
+    exit; // Detiene la ejecución del script después de la redirección
+}
+
+require_once '../core/route.php';  // Cargar el enrutador
+require_once '../core/routes.php'; // Opcional, si tienes rutas predefinidas
+
+// Iniciar la sesión si aún no está iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Enviar la URL solicitada al enrutador
+// Crear una instancia del enrutador
+$router = new Router();
+
+// Registrar las rutas
+$router->get('/login', 'LoginController@showLoginForm');
+$router->post('/login', 'LoginController@processLogin');
+$router->get('/dashboard', 'UserController@dashboard');
+$router->get('/admin/dashboard', 'AdminController@dashboard');
+
+// Enviar la URL solicitada al enrutador para que la gestione
 $router->dispatch($_SERVER['REQUEST_URI']);
 
-// Configura el controlador y la acción
-$controller = isset($_GET['controller']) ? $_GET['controller'] : 'login'; // Asegúrate de que 'home' está bien escrito en minúsculas
-$action = isset($_GET['action']) ? $_GET['action'] : 'showLoginForm';
-
-// Verifica si el controlador existe y lo carga
-$controllerFile = "../app/controllers/{$controller}Controller.php";
-if (file_exists($controllerFile)) {
-    require_once $controllerFile;
-    $controller = ucfirst($controller) . "Controller"; // Capitalizar la primera letra de la clase
-    $controllerObj = new $controller();
-    $controllerObj->$action();
-} else {
-    // Si el controlador no existe, carga un controlador por defecto (por ejemplo, Home)
-    require_once "../app/controllers/LoginController.php";
-    $controllerObj = new LoginController();
-    $controllerObj->showLoginForm();
-}
-
 ?>
-

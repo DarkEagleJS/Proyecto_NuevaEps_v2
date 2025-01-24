@@ -1,41 +1,53 @@
 <?php
+
 class Router {
     private $routes = [];
 
-    // Método para definir rutas GET
-    public function get($url, $controllerAction) {
-        $this->routes['GET'][$url] = $controllerAction;
+    // Registrar rutas para el método GET
+    public function get($uri, $action) {
+        $this->routes['GET'][$uri] = $action;
     }
 
-    // Método para definir rutas POST
-    public function post($url, $controllerAction) {
-        $this->routes['POST'][$url] = $controllerAction;
+    // Registrar rutas para el método POST
+    public function post($uri, $action) {
+        $this->routes['POST'][$uri] = $action;
     }
 
-    // Método para despachar la ruta según la solicitud
-    public function dispatch($url) {
+    public function dispatch($uri) {
+        // Eliminar el prefijo '/Proyecto' si está presente en la URI
+        $uri = preg_replace('/^\/Proyecto/', '', $uri);
+    
+        // Recortar las barras al inicio y al final de la URI
+        $uri = trim($uri, '/');
+    
+        // Obtener el método HTTP de la solicitud
         $method = $_SERVER['REQUEST_METHOD'];
-
-        // Verificamos si la ruta existe para el método
-        if (isset($this->routes[$method][$url])) {
-            // Desglosamos el controlador y la acción
-            list($controller, $action) = explode('@', $this->routes[$method][$url]);
-
-            // Verificamos que el controlador exista
-            if (class_exists($controller)) {
-                $controllerInstance = new $controller();
-                
-                // Verificamos que la acción exista en el controlador
-                if (method_exists($controllerInstance, $action)) {
-                    $controllerInstance->$action(); // Ejecutamos la acción
-                } else {
-                    echo "Acción no encontrada: $action";
-                }
-            } else {
-                echo "Controlador no encontrado: $controller";
-            }
+    
+        // Verificar si la ruta está registrada
+        if (isset($this->routes[$method][$uri])) {
+            $action = $this->routes[$method][$uri];
+            $this->callAction($action);
         } else {
-            echo "Ruta no encontrada: $url";
+            echo "Ruta no encontrada: " . $uri; // Si no se encuentra la ruta
+        }
+    }
+    
+    private function callAction($action) {
+        // Dividir el controlador y el método
+        list($controller, $method) = explode('@', $action);
+
+        // Cambiar el nombre del controlador a la forma correcta
+        $controller = ucfirst($controller) . "Controller";  // Convierte 'login' en 'LoginController'
+
+        // Incluir el archivo del controlador
+        $controllerFile = "../app/controllers/{$controller}.php";
+        if (file_exists($controllerFile)) {
+            require_once $controllerFile;
+            $controllerObj = new $controller();
+            $controllerObj->$method();  // Llamar al método del controlador
+        } else {
+            echo $controllerFile;
         }
     }
 }
+?>
